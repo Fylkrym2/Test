@@ -1,0 +1,20 @@
+# /core/state_processor.go
+func (p *StateProcessor) Process(block *Block, statedb *StateDB, cfg vm.Config) (types.Receipts, []*types.Log, *big.Int, error) {
+var {
+receipts types.Receipts
+totalUsedGas = big.NewInt(0)
+header = block.Header()
+allLogs  []*types.Log
+gp = new(GasPool).AddGas(block.GasLimit())
+}
+...
+for i, tx := range block.Transactions() {
+statedb.Prepare(tx.Hash(), block.Hash(), i)
+receipt, _, err ：= ApplyTransaction(p.config, p.bc, author:nil, gp, statedb, header, tx, totalUsedGas, cfg)
+if err != nil { return nil, nil, nil, err}
+receipts = append(receipts, receipt)
+allLogs = append(allLogs, receipt.Logs...)
+}
+p.engine.Finalize(p.bc, header, statedb, block.Transactions(), block.Uncles(), receipts)
+return receipts, allLogs, totalUsedGas, nil
+}
